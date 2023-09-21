@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <title>Contract Testing</title>
+
+    <style>
+      .navbar-btns .btn {
+        margin-right: 15px;
+      }
+
+      .col-name {
+        text-align: center;
+        font-size: 17px;
+      }
+
+      .col-content {
+        text-align: center;
+      }
+
+      .highlight {
+        background-color: yellow;
+      }
+    </style>
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <div id="app">
+      <header>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+          <div class="container-fluid">
+            <code
+              >Microservice: [[url || 'Upload configuration to get started'
+              ]]</code
+            >
+
+            <div class="d-flex" id="navbarNav">
+              <ul class="navbar-nav ml-auto navbar-btns">
+                <li class="nav-item">
+                  <button
+                    class="btn btn-success"
+                    type="button"
+                    :disabled="!loaded || running_test"
+                    @click="run()"
+                  >
+                    Run Test
+                  </button>
+                </li>
+                <li class="nav-item">
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    @click="load_config"
+                  >
+                    Upload Configuration
+                  </button>
+                </li>
+                <li class="nav-item">
+                  <button class="btn btn-primary" type="button" @click="downloadSample()">
+                    Download Sample Configuration
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <main class="flex-grow-1 pt-5">
+        <div class="alert alert-warning" role="alert" v-if="running_test">
+          <i class="fas fa-spinner fa-spin"></i> [[running_test_name]] -
+          [[running_test_id]] is running, please wait ...
+        </div>
+        <table class="table table-bordered table-responsive table-striped">
+          <thead>
+            <tr>
+              <th class="col-name">Successful</th>
+              <th class="col-name">Name</th>
+              <th class="col-name">ID</th>
+              <th class="col-name">Total Tests</th>
+              <th class="col-name">Passed Tests</th>
+              <th class="col-name">Failed Tests</th>
+              <th class="col-name">Date</th>
+
+              <th class="col-name">Duration</th>
+              <th class="col-name">Report</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              :class="{ 'table-success': result.successful, 'table-danger': !result.successful }"
+              v-for="result in results"
+              :key="result.id"
+            >
+              <td class="col-content">
+                <i
+                  v-if="result.successful"
+                  class="fas fa-check text-success"
+                ></i>
+                <i v-else class="fas fa-times text-danger"></i>
+              </td>
+
+              <td class="col-content">[[result.name]]</td>
+              <td class="col-content">[[result.id]]</td>
+              <td class="col-content">[[result.total_tests]]</td>
+              <td class="col-content">[[result.passed]]</td>
+              <td class="col-content">[[result.failed]]</td>
+              <td class="col-content">[[result.start_date.toUTCString()]]</td>
+              <td class="col-content">[[result.duration]]s</td>
+              <td class="col-content">
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  @click="openReport(result.id)"
+                >
+                  <i class="fas fa-eye" style="margin-right: 5px"></i>View
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        delimiters: ["[[", "]]"],
+        data: {
+          results: [],
+          config: {},
+          url: "",
+          loaded: false,
+          updates: {},
+          running_test: false,
+          running_test_name: "",
+          running_test_id: "",
+        },
+        mounted() {
+          this.live_update();
+          this.fetchData();
+        },
+        methods: {
+          fetchData() {
+            return new Promise((resolve, reject) => {
+              fetch("/results")
+                .then((response) => response.json())
+                .then((data) => {
+                  const r = [];
+                  for (const result of data) {
+                    r.push({
+                      name: result.name,
+                      id: result.id,
+                      successful: result.results.wasSuccessful,
+                      total_tests: result.results.total,
+                      passed: result.results.passed,
+                      failed: result.results.failed,
+                      duration: result.results.duration,
+                      start_date: new Date(result.start_date * 1000),
+                    });
+                    r.sort(function (a, b) {
+                      return new Date(b.start_date) - new Date(a.start_date);
+                    });
+                    this.results = r;
+                  }
+                  return resolve();
+                })
+                .catch((error) => {
+                  console.error(error);
+                  return resolve();
+                });
+            });
+          },
+
+          openReport(id) {
+            window.location.href = "/report/" + id;
+          },
+
+          downloadSample() {
+            window.location.href = "/sample"
+          },
+          run() {
+            if (this.running_test) {
+              return;
+            }
+            fetch("/test/run", {
+              method: "POST",
+              body: JSON.stringify(this.config),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((response) => {})
+              .catch((error) => {
+                console.error(error);
+              });
+          },
+
+          load_config() {
+            let input = document.createElement("input");
+            input.type = "file";
+            input.onchange = (_) => {
+              const file = input.files[0];
+              if (!file) {
+                return;
+              }
+
+              if (file.type !== "application/json") {
+                alert("Please select a valid JSON file.");
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                try {
+                  const jsonData = JSON.parse(event.target.result);
+                  this.config = jsonData;
+                  this.url = this.config.service.url;
+                  this.loaded = true;
+                } catch (error) {
+                  alert("Error parsing JSON. Please select a valid JSON file.");
+                }
+              };
+              reader.readAsText(file);
+            };
+            input.click();
+          },
+
+          live_update() {
+            const eventSource = new EventSource("/runner/updates");
+            eventSource.onmessage = (event) => {
+              this.updates = event;
+              try {
+                let data = JSON.parse(event.data);
+                if (this.running_test && data.running === false) {
+                  this.fetchData().then(() => {
+                    this.highlightFirstRow();
+                  });
+                }
+                this.running_test = data.running;
+                this.running_test_name = data.name;
+                this.running_test_id = data.id;
+              } catch (_) {}
+            };
+          },
+
+          highlightFirstRow() {
+            const firstRow = document.querySelector("tbody tr:first-child");
+            if (!firstRow) {
+              return;
+            }
+            firstRow.classList.add("table-warning");
+            setTimeout(() => {
+              firstRow.classList.remove("table-warning");
+            }, 3000); 
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

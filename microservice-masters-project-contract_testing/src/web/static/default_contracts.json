@@ -1,0 +1,278 @@
+{
+  "service": {
+    "url": "http://172.21.0.2:5000/api/v1",
+    "api_key": "test"
+  },
+  "schemas": [
+    {
+      "id": 1,
+      "jsonSchema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "email": { "type": "string" },
+            "name": { "type": "string" },
+            "age": { "type": "number" },
+            "gender": { "type": "string" },
+            "shipping_address": { "type": "string" },
+            "billing_address": { "type": "string" },
+            "country": { "type": "string" },
+            "region": { "type": "string" },
+            "primary_phone_number": { "type": "number" }
+          },
+          "required": [
+            "email",
+            "name",
+            "age",
+            "gender",
+            "shipping_address",
+            "billing_address",
+            "country",
+            "region",
+            "primary_phone_number"
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "jsonSchema": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "age": { "type": "number" },
+          "gender": { "type": "string" },
+          "shipping_address": { "type": "string" },
+          "billing_address": { "type": "string" },
+          "country": { "type": "string" },
+          "region": { "type": "string" },
+          "primary_phone_number": { "type": "number" }
+        },
+        "required": [
+          "email",
+          "name",
+          "age",
+          "gender",
+          "shipping_address",
+          "billing_address",
+          "country",
+          "region",
+          "primary_phone_number"
+        ]
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "description": "Add a user",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "12311232@hotmail.com",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "schemaId": 2,
+      "expected_status_code": 201,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Get a user",
+      "route": "/user",
+      "method": "GET",
+      "data": {
+        "email": "12311232@hotmail.com"
+      },
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Update a user",
+      "route": "/user?email=2@hotmail.com",
+      "method": "PATCH",
+      "data": {
+        "email": "12311232@hotmail.com",
+        "name": "world",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "schemaId": 2,
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Delete a user",
+      "route": "/user",
+      "method": "DELETE",
+      "data": {
+        "email": "12311232@hotmail.com"
+      },
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Add a user",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "1@hotmail.com",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "schemaId": 2,
+      "expected_status_code": 201,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Add a user",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "2@hotmail.com",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "schemaId": 2,
+      "expected_status_code": 201,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Get all users",
+      "route": "/users",
+      "method": "GET",
+      "schemaId": 1,
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Delete a user",
+      "route": "/user",
+      "method": "DELETE",
+      "data": {
+        "email": "1@hotmail.com"
+      },
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Delete a user",
+      "route": "/user",
+      "method": "DELETE",
+      "data": {
+        "email": "2@hotmail.com"
+      },
+      "expected_status_code": 200,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Unathorized get all users",
+      "route": "/users",
+      "method": "GET",
+      "expected_status_code": 403,
+      "max_time_taken_sec": 2,
+      "authorized": false
+    },
+    {
+      "description": "Unathorized add a user",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "2@hotmail.com",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "expected_status_code": 403,
+      "max_time_taken_sec": 2,
+      "authorized": false
+    },
+    {
+      "description": "Unathorized delete a user",
+      "route": "/user",
+      "method": "DELETE",
+      "data": {
+        "email": "2@hotmail.com"
+      },
+      "expected_status_code": 403,
+      "max_time_taken_sec": 2,
+      "authorized": false
+    },
+    {
+      "description": "Add a user without an email",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "expected_status_code": 422,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    },
+    {
+      "description": "Add a user with bad email",
+      "route": "/user",
+      "method": "POST",
+      "data": {
+        "email": "aaa@h@@.com",
+        "name": "hello",
+        "age": 12,
+        "gender": "F",
+        "shipping_address": "asdsad asdas dasd ",
+        "billing_address": "asdsad asdas dasd ",
+        "country": "Sweden",
+        "region": "Europe",
+        "primary_phone_number": 123123123
+      },
+      "expected_status_code": 422,
+      "max_time_taken_sec": 2,
+      "authorized": true
+    }
+  ]
+}
